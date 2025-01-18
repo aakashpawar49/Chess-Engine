@@ -36,6 +36,7 @@ def main():
     running = True
     sqSelected = () #no sqaure is selected, keep track of the last click of user(tuple: (row, col))
     playerClicks = [] #keeps track of player clicks (two tuples: [(6,4),(4,4)])
+    
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
@@ -57,14 +58,15 @@ def main():
                     if move in validMoves:
                         gs.makeMove(move)
                         moveMade = True
-                    sqSelected = () #reset user clicks
-                    playerClicks = []
+                        sqSelected = () #reset user clicks
+                        playerClicks = []
+                    else:
+                        playerClicks = [sqSelected]
             #key handlers
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z: #undo when 'z' is pressed
                     gs.undoMove()
                     moveMade = True
-
 
         if moveMade:
             validMoves = gs.getValidMoves()
