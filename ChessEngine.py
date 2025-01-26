@@ -3,10 +3,7 @@
 This class is responsible for storing all the information about the current state of a chess game. It will also be responsible for 
 determining the valid moves at the current state. It will also keep a move log.
 '''
-class GameState():
-    
-    
-    
+class GameState():    
     def __init__(self):
         #board is an 8x8 2d list, each element of the list has 2 characters.
         #The first character represents the color of the piece, 'b' or 'w'
@@ -32,7 +29,7 @@ class GameState():
         self.checks = []
 
     '''
-    Make a move that is passed as parameter
+    Takes a move as a parameter and executes it (this will not work for castling and promotion and en-passant)
     '''
     def makeMove(self, move):
         self.board[move.endRow][move.endCol] = move.pieceMoved
@@ -55,7 +52,7 @@ class GameState():
             self.board[move.startRow][move.startCol] = move.pieceMoved
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove #switch turns back
-            #update the king's position
+            #update the king's position if needed
             if move.pieceMoved == 'wK':
                 self.whiteKingLocation = (move.StartRow, move.StartCol)
             elif move.pieceMoved == "bK":
@@ -245,7 +242,7 @@ class GameState():
                             break
                     else:   # off board
                         break
-                    
+
     ''' 
     Get all the Queen moves for the pawn located at row, col and add these moves to list
     '''
@@ -364,6 +361,10 @@ class Move():
         self.endCol = endSq[1]
         self.pieceMoved = board[self.startRow][self.startCol]
         self.pieceCaptured = board[self.endRow][self.endCol]
+        self.isPawnPromotion = False
+        if (self.pieceMoved == 'wp' and self.endRow == 0) or (self.pieceMoved == 'bp' and self.endRow == 7) :
+            self.isPawnPromotion = True
+            
         self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol
 
     '''
@@ -380,12 +381,6 @@ class Move():
 
     def getRankFile(self, r, c):
         return self.colsToFiles[c] + self.rowsToRanks[r]
-
-
-
-
-
-
 
 
 # class Move():
