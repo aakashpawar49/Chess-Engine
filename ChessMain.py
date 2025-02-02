@@ -3,7 +3,7 @@ This is our main driver file. It will be responsible for handling user input and
 """
 
 import pygame as p
-from ChessEngine import GameState, Move
+from ChessEngine import GameState, Move, SmartMoveFinder
 
 WIDTH = HEIGHT = 512 #400 is another option
 DIMENSION = 8        #Dimensions of a chess board
@@ -37,19 +37,22 @@ def main():
     sqSelected = ()  # no square is selected, keep track of the last click of user(tuple: (row, col))
     playerClicks = []  # keeps track of player clicks (two tuples: [(6,4),(4,4)])
     gameOver = False
+    playerOne = True   #If a Human is playing white, then this will be true. If an AI is playing, then
+    playerTwo = False  #Same as above but for black
     while running:
+        humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             # mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver:
+                if not gameOver and humanTurn:
                     location = p.mouse.get_pos()  # (x, y) location of mouse
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
                     if sqSelected == (row, col):  # the user clicked the same square twice
-                        sqSelected = ()  # deselect
-                        playerClicks = []  # clear player clicks
+                        sqSelected = ()  #deselect
+                        playerClicks = []  #clear player clicks
                     else:
                         sqSelected = (row, col)
                         playerClicks.append(sqSelected)  # append for both 1st and 2nd clicks
@@ -78,6 +81,15 @@ def main():
                     playerClicks = []
                     moveMade = False
                     animateFlag = False
+
+            #AI Move finder
+            if not gameOver and not humanTurn:
+                AIMOVE = SmartMoveFinder.findBestMoves(gs, validMoves)
+                if AIMOVE is None:
+                    AIMove = SmartMoveFinder.findRandomMove(validMoves)
+                gs.makeMove(AIMove)
+                moveMade = True
+                animate = True
 
         if moveMade:
             if animateFlag:
