@@ -30,29 +30,29 @@ def main():
     screen.fill(p.Color("white"))
     gs = GameState()
     validMoves = gs.getValidMoves()
-    moveMade = False #flag variable for when a move is made
-    animateMove = False #flag for variable when we should animate a move
-    loadImages() #only do this once , before the while loop
+    moveMade = False  # flag variable for when a move is made
+    animateFlag = False  # flag for variable when we should animate a move (make sure it's initialized)
+    loadImages()  # only do this once , before the while loop
     running = True
-    sqSelected = () #no sqaure is selected, keep track of the last click of user(tuple: (row, col))
-    playerClicks = [] #keeps track of player clicks (two tuples: [(6,4),(4,4)])
+    sqSelected = ()  # no square is selected, keep track of the last click of user(tuple: (row, col))
+    playerClicks = []  # keeps track of player clicks (two tuples: [(6,4),(4,4)])
     gameOver = False
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
-            #mouse handler
+            # mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
                 if not gameOver:
-                    location = p.mouse.get_pos() #(x,y) location of mouse
-                    col = location[0]//SQ_SIZE
-                    row = location[1]//SQ_SIZE 
-                    if sqSelected == (row, col): #the user clicked the same square twice
-                        sqSelected = () #deselect
-                        playerClicks = [] #clear player clicks
+                    location = p.mouse.get_pos()  # (x, y) location of mouse
+                    col = location[0] // SQ_SIZE
+                    row = location[1] // SQ_SIZE
+                    if sqSelected == (row, col):  # the user clicked the same square twice
+                        sqSelected = ()  # deselect
+                        playerClicks = []  # clear player clicks
                     else:
                         sqSelected = (row, col)
-                        playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
+                        playerClicks.append(sqSelected)  # append for both 1st and 2nd clicks
                     if len(playerClicks) == 2:
                         move = Move(playerClicks[0], playerClicks[1], gs.board)
                         print(move.getChessNotation())
@@ -60,31 +60,31 @@ def main():
                             if move == validMoves[i]:
                                 gs.makeMove(move)
                                 moveMade = True
-                                animateMove = True
-                                sqSelected = () #reset user clicks
+                                animateFlag = True  # set the flag here when a move is made
+                                sqSelected = ()  # reset user clicks
                                 playerClicks = []
                         if not moveMade:
                             playerClicks = [sqSelected]
-            #key handlers
+            # key handlers
             elif e.type == p.KEYDOWN:
-                if e.key == p.K_z: #undo when 'z' is pressed
+                if e.key == p.K_z:  # undo when 'z' is pressed
                     gs.undoMove()
                     moveMade = True
-                    animateMove = False
-                if e.key == p.K_r: #reset the board when 'r' is pressed
+                    animateFlag = False
+                if e.key == p.K_r:  # reset the board when 'r' is pressed
                     gs = ChessEngine.GameState()
                     validMoves = gs.getValidMoves()
                     sqSelected = ()
                     playerClicks = []
                     moveMade = False
-                    animate = False
+                    animateFlag = False
 
         if moveMade:
-            if animateMove:
+            if animateFlag:
                 animateMove(gs.moveLog[-1], screen, gs.board, clock)
             validMoves = gs.getValidMoves()
             moveMade = False
-            animate = False
+            animateFlag = False
 
         drawGameState(screen, gs, validMoves, sqSelected)
 
@@ -103,7 +103,7 @@ def main():
 '''
 Highlight the square selected and moves for piece selected
 '''
-def highlightSquares(screeen, gs, validMoves, sqSelected):
+def highlightSquares(screen, gs, validMoves, sqSelected):
     if sqSelected != ():
         r, c = sqSelected
         if gs.board[r][c][0] == ('w' if gs.whiteToMove else 'b'): #sqSelected is a piece that can be moved
@@ -124,7 +124,7 @@ Responsible for al the graphics within a current game state.
 '''
 def drawGameState(screen, gs, validMoves, sqSelected):
     drawBoard(screen)        #draw squares on the board
-    highlightSquares(screeen, gs, validMoves, sqSelected)
+    highlightSquares(screen, gs, validMoves, sqSelected)
     drawPieces(screen, gs.board) #draw pieces on top of those squares
 
 
