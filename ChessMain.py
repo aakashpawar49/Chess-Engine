@@ -74,6 +74,7 @@ def main():
                     gs.undoMove()
                     moveMade = True
                     animateFlag = False
+                    gameOver = False
                 if e.key == p.K_r:  # reset the board when 'r' is pressed
                     gs = ChessEngine.GameState()
                     validMoves = gs.getValidMoves()
@@ -81,10 +82,11 @@ def main():
                     playerClicks = []
                     moveMade = False
                     animateFlag = False
+                    gameOver = False
 
             #AI Move finder
             if not gameOver and not humanTurn:
-                AIMOVE = SmartMoveFinder.findBestMoves(gs, validMoves)
+                AIMOVE = SmartMoveFinder.findBestMoveMinMax(gs, validMoves)
                 if AIMOVE is None:
                     AIMove = SmartMoveFinder.findRandomMove(validMoves)
                 gs.makeMove(AIMove)
@@ -109,6 +111,7 @@ def main():
         elif gs.stalemate:
             gameOver = True
             drawText(screen, 'Stalemate')
+        
         clock.tick(MAX_FPS)
         p.display.flip()
 
