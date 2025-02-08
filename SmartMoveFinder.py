@@ -3,7 +3,7 @@ import random
 pieceScore = {"K": 0, "Q": 10, "R": 5, "B": 3, "N": 3, "p": 1}
 CHECKMATE = 1000
 STALEMATE = 0
-DEPTH = 3
+DEPTH = 2
 
 '''
 Picks and returns a random move.
@@ -49,11 +49,15 @@ def findBestMoves(gs, validMoves):
 '''
 Helper method to make first recursive call
 '''
-def findBestMoveMinMax():
+def findBestMove():
     global nextMove
     nextMove = None
-    findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove)
+    random.shuffle(validMoves)
+    # findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1)
+    findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1)
     return nextMove
+
+def findMoveMinMax(gs, validMoves, depth, whiteToMove):...
 
 def findMoveMinMax(gs, validMoves, depth, whiteToMove):
     global nextMove
@@ -86,6 +90,23 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
             gs.undoMove
         return minScore
 
+def findMoveNegaMax(gs, validMoves, depth, turnMultiplier):
+    global nextMove
+    if depth == 0:
+        return turnMultiplier * scoreBoard(gs.board)
+
+    maxScore = -CHECKMATE
+    for move in validMoves:
+        gs.makeMove(move)
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMax(gs, nextMoves, depth-1, -turnMultiplier)
+        if score > maxScore:
+            maxScore = score
+            if depth == DEPTH:
+                nextMove = move
+        gs.undoMove()
+    return maxScore
+
 
 '''
 A positive score is good for white, negative score is good for black
@@ -100,7 +121,7 @@ def scoreBoard(gs):
         return STALEMATE
 
     score = 0
-    for row in board:
+    for row in gs.board:
         for square in row:
             if square[0] == 'w':
                 score += pieceScore[square[1]]
