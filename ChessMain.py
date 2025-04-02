@@ -8,7 +8,7 @@ import ChessEngine, ChessAI
 import sys
 from multiprocessing import Process, Queue
 
-BOARD_WIDTH = BOARD_HEIGHT = 512
+BOARD_WIDTH = BOARD_HEIGHT = 552
 MOVE_LOG_PANEL_WIDTH = 250
 MOVE_LOG_PANEL_HEIGHT = BOARD_HEIGHT
 DIMENSION = 8
@@ -50,7 +50,7 @@ def main():
     move_finder_process = None
     move_log_font = p.font.SysFont("Arial", 14, False, False)
     player_one = True  # if a human is playing white, then this will be True, else False
-    player_two = False  # if a hyman is playing white, then this will be True, else False
+    player_two = False  # if a human is playing white, then this will be True, else False
 
     while running:
         human_turn = (game_state.white_to_move and player_one) or (not game_state.white_to_move and player_two)
@@ -212,43 +212,66 @@ def drawPieces(screen, board):
 
 def drawMoveLog(screen, game_state, font):
     """
-    Draws the move log.
-
+    Draws the move log with a cleaner design.
     """
     move_log_rect = p.Rect(BOARD_WIDTH, 0, MOVE_LOG_PANEL_WIDTH, MOVE_LOG_PANEL_HEIGHT)
-    p.draw.rect(screen, p.Color('black'), move_log_rect)
+    p.draw.rect(screen, p.Color('black'), move_log_rect)  # Background
+
+    # Draw the title "Move Log"
+    title_font = p.font.SysFont("Times Roman", 22, True, True)
+    title_text = title_font.render("Move Log", True, p.Color('white'))
+    screen.blit(title_text, move_log_rect.move(10, 5))
+
     move_log = game_state.move_log
     move_texts = []
     for i in range(0, len(move_log), 2):
-        move_string = str(i // 2 + 1) + '. ' + str(move_log[i]) + " "
+        move_string = f"{i // 2 + 1}. {str(move_log[i])}"
         if i + 1 < len(move_log):
-            move_string += str(move_log[i + 1]) + "  "
+            move_string += f"  {str(move_log[i + 1])}"
         move_texts.append(move_string)
 
-    moves_per_row = 3
-    padding = 5
-    line_spacing = 2
-    text_y = padding
-    for i in range(0, len(move_texts), moves_per_row):
-        text = ""
-        for j in range(moves_per_row):
-            if i + j < len(move_texts):
-                text += move_texts[i + j]
+    # Formatting text spacing
+    moves_per_row = 2
+    padding = 10
+    line_spacing = 5
+    text_y = 30  # Below title
 
+    for i in range(0, len(move_texts), moves_per_row):
+        text = "   ".join(move_texts[i:i + moves_per_row])  # Space-separated moves
         text_object = font.render(text, True, p.Color('white'))
         text_location = move_log_rect.move(padding, text_y)
         screen.blit(text_object, text_location)
         text_y += text_object.get_height() + line_spacing
 
+    # Draw a border around move log
+    p.draw.rect(screen, p.Color("white"), move_log_rect, 2)
+
 
 def drawEndGameText(screen, text):
-    font = p.font.SysFont("Helvetica", 32, True, False)
-    text_object = font.render(text, False, p.Color("gray"))
-    text_location = p.Rect(0, 0, BOARD_WIDTH, BOARD_HEIGHT).move(BOARD_WIDTH / 2 - text_object.get_width() / 2,
-                                                                 BOARD_HEIGHT / 2 - text_object.get_height() / 2)
+    """
+    Display end game message in the center with enhanced styling.
+    """
+    # Create a semi-transparent overlay
+    overlay = p.Surface((BOARD_WIDTH, BOARD_HEIGHT))
+    overlay.set_alpha(180)  # Adjust transparency (0 = fully transparent, 255 = opaque)
+    overlay.fill(p.Color("black"))
+    screen.blit(overlay, (0, 0))
+
+    # Render text with shadow
+    font = p.font.SysFont("Helvetica", 40, True, True)
+    text_object = font.render(text, True, p.Color("white"))
+    shadow_object = font.render(text, True, p.Color("black"))
+
+    # Position text in the center
+    text_location = p.Rect(0, 0, BOARD_WIDTH, BOARD_HEIGHT).move(
+        BOARD_WIDTH / 2 - text_object.get_width() / 2,
+        BOARD_HEIGHT / 2 - text_object.get_height() / 2
+    )
+
+    # Draw shadow for better visibility
+    screen.blit(shadow_object, text_location.move(2, 2))
     screen.blit(text_object, text_location)
-    text_object = font.render(text, False, p.Color('black'))
-    screen.blit(text_object, text_location.move(2, 2))
+
 
 
 def animateMove(move, screen, board, clock):
