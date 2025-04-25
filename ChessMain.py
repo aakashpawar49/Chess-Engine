@@ -60,6 +60,13 @@ def showStartScreen(screen):
         button_height
     )
     
+    button3_rect = p.Rect(
+        screen_center_x - button_width // 2,
+        450,
+        button_width,
+        button_height
+    )
+    
     player_one = True  # Default to human playing white
     player_two = False  # Default to AI playing black
     selecting = True
@@ -95,6 +102,8 @@ def showStartScreen(screen):
                            p.Color(70, 130, 180), p.Color(90, 150, 200), button_font)
         hover2 = drawButton(screen, "2 Players", button2_rect, 
                            p.Color(70, 130, 180), p.Color(90, 150, 200), button_font)
+        hover3 = drawButton(screen, "AI vs AI", button3_rect,
+                           p.Color(70, 130, 180), p.Color(90, 150, 200), button_font)
         
         p.display.flip()
         
@@ -110,6 +119,10 @@ def showStartScreen(screen):
                 elif hover2:
                     player_one = True
                     player_two = True
+                    selecting = False
+                elif hover3:
+                    player_one = False
+                    player_two = False
                     selecting = False
     
     return player_one, player_two
